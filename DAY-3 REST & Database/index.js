@@ -12,7 +12,6 @@ let notes = [];
 
 app.post("/notes", (req, res) => {
   notes.push(req.body);
-  console.log(notes);
 
   res.json({
     message: "note added succesfully",
