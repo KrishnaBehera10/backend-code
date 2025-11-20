@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const songschema = new mongoose.Schema({
   title: String,
   artist: String,
-  song: String,
+  url: String,
 });
 
 const song = mongoose.model("song", songschema);
