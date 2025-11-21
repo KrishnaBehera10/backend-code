@@ -1,13 +1,9 @@
 import { FaPlay, FaPause } from "react-icons/fa";
 import { useState, useRef } from "react";
 
-function SongList() {
-  const [song] = useState([
-    { title: "test_title", artist: "test_artist", url: "test_song.mp3" },
-  ]);
-
-  const audioRef = useRef(null); // target audio element
-  const [isPlaying, setIsPlaying] = useState(false); // play pause
+function SongList({ song }) {
+  const audioRef = useRef(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const handlePlay = () => {
     audioRef.current.play();
@@ -20,28 +16,35 @@ function SongList() {
   };
 
   return (
-    <div className="mt-5">
-      <h1 className="text-3xl capitalize">recommended</h1>
+    <div className="h-full flex flex-col">
+      {/* Fixed header */}
+      <h1 className="text-3xl capitalize bg-amber-50 p-2 sticky top-0 z-10">
+        recommended
+      </h1>
 
-      {song.map((data, index) => (
-        <div key={index} className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl">{data.title}</h1>
-            <p>{data.artist}</p>
+      {/* Scrollable list area */}
+      <div className="overflow-y-auto mt-3 space-y-3 pb-5">
+        {song.map((data, index) => (
+          <div
+            key={index}
+            className="flex justify-between items-center bg-gray-200/40 py-3 px-2 rounded"
+          >
+            <div>
+              <h1 className="text-md capitalize">{data?.title}</h1>
+            </div>
+
+            <div className="cursor-pointer">
+              {!isPlaying ? (
+                <FaPlay onClick={handlePlay} />
+              ) : (
+                <FaPause onClick={handlePause} />
+              )}
+            </div>
+
+            <audio ref={audioRef} src={data?.url} className="hidden" />
           </div>
-
-          <div className="cursor-pointer">
-            {!isPlaying ? (
-              <FaPlay onClick={handlePlay} />
-            ) : (
-              <FaPause onClick={handlePause} />
-            )}
-          </div>
-
-          {/* Audio tag is hidden; not visible in UI */}
-          <audio ref={audioRef} src={data.url} className="hidden" />
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

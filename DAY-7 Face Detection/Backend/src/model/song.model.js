@@ -1,11 +1,25 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
-const songschema = new mongoose.Schema({
-  title: String,
-  artist: String,
-  url: String,
-});
+const songschema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    mood: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    url: {
+      type: String,
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
 
-const song = mongoose.model("song", songschema);
+const songmodel = mongoose.model("song", songschema);
 
-export default song;
+module.exports = songmodel;

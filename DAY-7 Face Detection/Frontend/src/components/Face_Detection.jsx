@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import * as faceapi from "face-api.js";
+import axios from "axios";
 
-export default function FaceDetector() {
+export default function FaceDetector({ setsong, setinitalval }) {
   const videoRef = useRef(null);
-  const [isDetecting, setIsDetecting] = useState(false);
   const intervalRef = useRef(null);
+  const [isDetecting, setIsDetecting] = useState(false);
+  const lastMoodRef = useRef("");
 
   useEffect(() => {
     async function loadModels() {
@@ -26,8 +28,9 @@ export default function FaceDetector() {
   }
 
   const startDetection = () => {
-    if (isDetecting) return; // avoid multiple starts
+    if (isDetecting) return;
     setIsDetecting(true);
+    setinitalval(true);
 
     const video = videoRef.current;
 
@@ -36,24 +39,32 @@ export default function FaceDetector() {
         .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
         .withFaceExpressions();
 
-      if (!detections.length) {
-        console.log("No face found");
-        return;
-      }
+      if (!detections.length) return;
 
       const expressions = detections[0].expressions;
-      let detec = null;
 
-      for (let exp in expressions) {
-        if (expressions[exp] > 0.5) {
-          detec = exp;
-        }
+      // find the highest expression
+      const mood = Object.keys(expressions).reduce((a, b) =>
+        expressions[a] > expressions[b] ? a : b
+      );
+
+      // avoid calling API repeatedly
+      if (mood === lastMoodRef.current) return;
+      lastMoodRef.current = mood;
+
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/song?mood=${mood}`
+        );
+        setsong(response.data.songs ?? response.data.song ?? response.data);
+      } catch (err) {
+        console.log("API error:", err);
       }
-    }, 200);
+    }, 300);
   };
 
   return (
-    <div className="w-full flex justify-between items-center">
+    <div className="w-full flex flex-col justify-between items-center gap-5">
       <video
         ref={videoRef}
         autoPlay
@@ -64,9 +75,9 @@ export default function FaceDetector() {
       <div className="w-1/2 flex justify-center">
         <button
           onClick={startDetection}
-          className="bg-blue-600 text-white py-2 px-5 capitalize rounded-2xl cursor-pointer"
+          className="bg-blue-600 text-white py-2 px-5 capitalize rounded cursor-pointer"
         >
-          Detect
+          take expression
         </button>
       </div>
     </div>

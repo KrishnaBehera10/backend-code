@@ -12,6 +12,7 @@ const uploadfile = async (file) => {
       {
         file: file.buffer,
         fileName: file.originalname,
+        folder: "song",
       },
       (error, result) => {
         if (error) reject(error);
